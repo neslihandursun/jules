@@ -106,7 +106,11 @@ class BullyElection:
         coordinator_msg = common.ElectionMessage(common.MessageType.COORDINATOR, self.my_ip)
         payload = pickle.dumps(coordinator_msg)
 
-        other_servers = [s_ip for s_ip in common.active_servers if s_ip != self.my_ip]
+        # Erstelle eine Kopie der Liste, um Probleme bei nebenläufigen Änderungen zu vermeiden.
+        current_active_servers = list(common.active_servers)
+        other_servers = [s_ip for s_ip in current_active_servers if s_ip != self.my_ip]
+
+        print(f"[LEADER] Sende COORDINATOR an: {other_servers}")
         for server_ip in other_servers:
             try:
                 self.election_socket.sendto(payload, (server_ip, common.ELECTION_PORT))
